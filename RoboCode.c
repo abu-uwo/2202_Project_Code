@@ -16,6 +16,7 @@
 
 // github test
 //CAN YOU PULL?
+// nah
 
 #define FRONT_RACK_LARGE_EXTEND     6  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
                                 // When DIP Switch S1-1 is off, J15 can be used as analog AD2-4
