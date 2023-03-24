@@ -15,6 +15,7 @@
 #define FALL            35  // GPIO38 pin 31 (J38) Motor 2 B
 
 // github test
+//CAN YOU PULL?
 
 #define FRONT_RACK_LARGE_EXTEND     6  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
                                 // When DIP Switch S1-1 is off, J15 can be used as analog AD2-4
