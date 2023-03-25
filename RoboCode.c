@@ -9,32 +9,34 @@
 
 #define MODE_BUTTON         0   // GPIO0  pin 27 for Push Button 1
 
-#define FORWARD         4  // GPIO35 pin 28 (J35) Motor 1 A
-#define BACKWARD        5  // GPIO36 pin 29 (J36) Motor 1 B
-#define RISE            45  // GPIO37 pin 30 (J37) Motor 2 A
-#define FALL            35  // GPIO38 pin 31 (J38) Motor 2 B
+#define FORWARD_A       35
+#define BACKWARD_A      36
+#define FORWARD_B       37
+#define BACKWARD_B      38
+
+#define RISE            45
+#define FALL            35
 
 // github test
 //CAN YOU PULL?
-// nah
 
-#define FRONT_RACK_LARGE_EXTEND     6  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
+#define FRONT_RACK_LARGE_EXTEND     4  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
                                 // When DIP Switch S1-1 is off, J15 can be used as analog AD2-4
-#define FRONT_RACK_LARGE_RETRACT    36  // When DIP Switch S1-2 is on, Left encoder B signal is connected to pin 9 GPIO16 (J16)
+#define FRONT_RACK_LARGE_RETRACT    5 // When DIP Switch S1-2 is on, Left encoder B signal is connected to pin 9 GPIO16 (J16)
                                 // When DIP Switch S1-2 is off, J16 can be used as analog AD2-5
-#define FRONT_RACK_SMALL_EXTEND     7  // When DIP Switch S1-3 is on, Left encoder Direction signal is connected to pin 10 GPIO17 (J17)
+#define FRONT_RACK_SMALL_EXTEND     6  // When DIP Switch S1-3 is on, Left encoder Direction signal is connected to pin 10 GPIO17 (J17)
                                 // When DIP Switch S1-3 is off, J17 can be used as analog AD2-6
-#define FRONT_RACK_SMALL_RETRACT    9  // When DIP Switch S1-4 is on, Left encoder Speed signal is connected to pin 11 GPIO18 (J18)
+#define FRONT_RACK_SMALL_RETRACT    7  // When DIP Switch S1-4 is on, Left encoder Speed signal is connected to pin 11 GPIO18 (J18)
                                 // When DIP Switch S1-4 is off, J18 can be used as analog AD2-7
 
 
-#define REAR_RACK_LARGE_EXTEND      37  // When DIP Switch S1-7 is on, Right encoder A signal is connected to pin 19 GPIO11 (J11)
+#define REAR_RACK_LARGE_EXTEND      15  // When DIP Switch S1-7 is on, Right encoder A signal is connected to pin 19 GPIO11 (J11)
                                 // When DIP Switch S1-7 is off, J11 can be used as analog AD2-0
-#define REAR_RACK_LARGE_RETRACT     38  // When DIP Switch S1-8 is on, Right encoder B signal is connected to pin 20 GPIO12 (J12)
+#define REAR_RACK_LARGE_RETRACT     16  // When DIP Switch S1-8 is on, Right encoder B signal is connected to pin 20 GPIO12 (J12)
                                 // When DIP Switch S1-8 is off, J12 can be used as analog AD2-1
-#define REAR_RACK_SMALL_EXTEND      8  // When DIP Switch S1-9 is on, Right encoder Direction signal is connected to pin 21 GPIO13 (J13)
+#define REAR_RACK_SMALL_EXTEND      17  // When DIP Switch S1-9 is on, Right encoder Direction signal is connected to pin 21 GPIO13 (J13)
                                 // When DIP Switch S1-9 is off, J13 can be used as analog AD2-2
-#define REAR_RACK_SMALL_RETRACT     2  // When DIP Switch S1-10 is on, Right encoder Speed signal is connected to pin 22 GPIO14 (J14)
+#define REAR_RACK_SMALL_RETRACT     18  // When DIP Switch S1-10 is on, Right encoder Speed signal is connected to pin 22 GPIO14 (J14)
                                 // When DIP Switch S1-10 is off, J14 can be used as analog AD2-3
 
 #define SMART_LED           21  // When DIP Switch S1-11 is on, Smart LED is connected to pin 23 GPIO21 (J21)
