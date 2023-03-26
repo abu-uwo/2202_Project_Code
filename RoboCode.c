@@ -9,13 +9,22 @@
 
 #define MODE_BUTTON         0   // GPIO0  pin 27 for Push Button 1
 
-#define FORWARD_A       35
+#define FORWARD_A       35      //List of probably inaccurate motor names
 #define BACKWARD_A      36
 #define FORWARD_B       37
 #define BACKWARD_B      38
 
 #define RISE            45
 #define FALL            35
+
+#define Ultrasonic_steer  2    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
+#define Ultrasonic_check  1    // Checks to tell the robot when it arrives to the gap
+
+#define ci_U_Steer_Ping 11
+#define ci_U_Steer_Data 12
+
+#define ci_U_Check_Ping 13
+#define ci_U_Check_Data 14
 
 // github test
 //CAN YOU PULL?
@@ -47,14 +56,27 @@
 const int ci_Display_Update = 100;                                            // Update interval for Smart LED in milliseconds
 
 boolean bt_3_S_Time_Up = false;                                               // 3 second timer elapsed flag
-unsigned int ui_Mode_PB_Debounce;                                             // Pushbutton debounce timer count9
+unsigned int ui_Mode_PB_Debounce;                                             // Pushbutton debounce timer count
+unsigned int ui_RunMode=0;                                                    // Index count during performance
 
 unsigned long ul_3_Second_timer = 0;                                          // 3 second timer count in milliseconds
 unsigned long ul_Display_Time;                                                // Heartbeat LED update timer
 unsigned long ul_Previous_Micros;                                             // Last microsecond count
 unsigned long ul_Current_Micros;                                              // Current microsecond count
+
 unsigned long t1_curr=0;
 unsigned long t1_prev=0;
+unsigned long t2_curr=0;                                                      // Ultrasonic sensor timer
+unsigned long t2_prev=0;                                                      // Ultrasonic sensor timer
+unsigned long t3_curr=0;                                                      // Ping timer
+unsigned long t3_prev=0;                                                      // Ping timer
+
+
+unsigned long ul_echo_steer=0;
+unsigned long ul_echo_check=0;                                                     // Echo time of sonic bursts
+unsigned long ul_echo_steer_ref=0;
+unsigned long ul_echo_check_ref=0;                                                 // Reference echo time of sonic bursts
+
 
 
 Adafruit_NeoPixel SmartLEDs(SMART_LED_COUNT, SMART_LED, NEO_RGB + NEO_KHZ800);
@@ -67,7 +89,7 @@ unsigned char LEDBrightnessLevels[] = {5,15,30,45,60,75,90,105,120,135,150,165,1
 unsigned int  ui_Robot_Mode_Index = 0;                                        // Robot operational state
 unsigned int  ui_Mode_Indicator[7] = {                                        // Colours for different modes
   SmartLEDs.Color(255,0,0),                                                   //   Red - Stop
-  SmartLEDs.Color(0,255,0),                                                   //   Green - Run
+  SmartLEDs.Color(0,188,227),                                                 //   Bright Cyan- GO
   SmartLEDs.Color(0,0,255),                                                   //   Blue - Test stepper
   SmartLEDs.Color(255,255,0),                                                 //   Yellow - Test claw servo
   SmartLEDs.Color(255,0,255),                                                 //   Magenta - Test shoulder servo
@@ -75,19 +97,20 @@ unsigned int  ui_Mode_Indicator[7] = {                                        //
   SmartLEDs.Color(255,165,0)                                                  //   Orange - empty case
 };
 
+Motion Bot=Motion();                                                          // Instance of motion class
 void Indicator();                                                             // For mode/heartbeat on Smart LED
 
 void setup() {
   // put your setup code here, to run once:
+   Bot.driveBegin("D1", FORWARD_A, BACKWARD_A, FORWARD_B, BACKWARD_B);        // Set up motors as Drive 1
+
    SmartLEDs.begin();                                                         // Initialize smart LEDs object (REQUIRED)
    SmartLEDs.clear();                                                         // Clear pixel
    SmartLEDs.setPixelColor(0,SmartLEDs.Color(0,0,0));                         // Set pixel colors to 'off'
    SmartLEDs.show();                                                          // Send the updated pixel colors to the hardware
 
-   ui_Mode_PB_Debounce = 0;                                                   // Reset debounce timer count
-   pinMode(FORWARD, OUTPUT);
-   pinMode(BACKWARD, OUTPUT);
-
+   ui_Mode_PB_Debounce = 0;
+                                                                              // Reset debounce timer count
    pinMode(RISE, OUTPUT);
    pinMode(FALL, OUTPUT);
 
@@ -106,6 +129,9 @@ void setup() {
 }
 void loop()
 {
+    t1_curr = millis();                                                       // Start robot timer
+    t2_curr = micros();                                                       // Start sensor timer
+    t3_curr = 20 + millis();                                                  // Start ping timer
 
    ul_Current_Micros = micros();                                              // Get current time in microseconds
    if ((ul_Current_Micros - ul_Previous_Micros) >= 1000)                      // Enter when 1 ms has elapsed
@@ -152,6 +178,7 @@ void loop()
                ui_Robot_Mode_Index++;                                         // Switch to next mode
                ui_Robot_Mode_Index = ui_Robot_Mode_Index % 2;                 // Keep mode index between 0 and 1
                t1_prev=t1_curr;
+               t2_prev=t2_curr;
                ul_3_Second_timer = 0;                                         // Reset 3 second timer count
                bt_3_S_Time_Up = false;                                        // Reset 3 second timer
             }
@@ -163,31 +190,43 @@ void loop()
       // modes
       // 0 = Default after power up/reset. Robot is stopped.
       // 1 = Press mode button once to enter. Run robot.
-      // 2 = Press mode button twice to enter. Test stepper motor.
-      // 3 = Press mode button three times to enter. Test claw servo.
-      // 4 = Press mode button four times to enter. Test arm shoulder servo.
-      // 5 = Press mode button five times to enter. Test IR receiver.
-      // 6 = Press mode button six times to enter.  //add your code to do something
       switch(ui_Robot_Mode_Index)
       {
          case 0: // Robot stopped
          {
 
-            digitalWrite(FORWARD, LOW);
-            digitalWrite(BACKWARD, LOW);
+            Bot.Stop("D1");
+            if (t3_curr - t3_prev >= 20){
+             digitalWrite(ci_U_Steer_Ping, HIGH);
+             digitalWrite(ci_U_Check_Ping, HIGH);
+             t3_prev = t3_curr;
+             t2_prev = t2_curr;
+            }
+            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH)){
+             if (t2_curr - t2_prev > 10)
+             {
+                digitalWrite(ci_U_Steer_Ping, LOW);
+                digitalWrite(ci_U_Check_Ping, LOW);
+                ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                t2_prev = t2_curr;
+             }//Ping Function
+            }
+             //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
 
-            digitalWrite(RISE, LOW); //HIGH POWER
-            digitalWrite(FALL, LOW); //HIGH POWER
+
+            digitalWrite(RISE, LOW); //HIGH POWER 5V
+            digitalWrite(FALL, LOW); //HIGH POWER 5V
 
             digitalWrite(FRONT_RACK_LARGE_EXTEND, LOW);
-            digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW); //HIGH POWER
+            digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW);
             digitalWrite(FRONT_RACK_SMALL_EXTEND, LOW);
             digitalWrite(FRONT_RACK_SMALL_RETRACT, LOW);
 
-            digitalWrite(REAR_RACK_LARGE_EXTEND, LOW);  //HIGH POWER
-            digitalWrite(REAR_RACK_LARGE_RETRACT, LOW); //HIGH POWER
+            digitalWrite(REAR_RACK_LARGE_EXTEND, LOW);
+            digitalWrite(REAR_RACK_LARGE_RETRACT, LOW);
             digitalWrite(REAR_RACK_SMALL_EXTEND, LOW);
-            digitalWrite(REAR_RACK_SMALL_RETRACT, LOW); //HIGH POWER
+            digitalWrite(REAR_RACK_SMALL_RETRACT, LOW);
 
             break;
 
@@ -196,7 +235,79 @@ void loop()
 
          case 1: // Run robot
          {
-          t1_curr = millis();
+
+           if (t3_curr - t3_prev >= 20)
+            {
+             digitalWrite(ci_U_Steer_Ping, HIGH);
+             digitalWrite(ci_U_Check_Ping, HIGH);
+             t3_prev = t3_curr;
+             t2_prev = t2_curr;
+            }
+
+            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH))
+            {
+             if (t2_curr - t2_prev > 10)
+             {
+                digitalWrite(ci_U_Steer_Ping, LOW);
+                digitalWrite(ci_U_Check_Ping, LOW);
+                ul_echo_steer=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                ul_echo_check=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                t2_prev = t2_curr;
+             }//Ping Function
+            }
+
+        // ---------------------------------------------------------------------------------------------
+        //Action section
+
+        switch(ui_RunMode)
+        {
+            case 0:
+            {
+                if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                {
+                    Bot.Forward("D1",150,255);
+                } //if more than 2 cms deviation to the left assuming the wall is to the left
+                else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                {
+                    Bot.Forward("D1",255,150);
+                }
+                else
+                {
+                    Bot.Forward("D1",255,255);
+                }
+                if (ul_echo_check==0)
+                {
+                 t1_prev=t1_curr;
+                 ui_RunMode=1;
+                }
+
+            }
+            case 1:
+            {
+                 Bot.Stop("D1");
+                 if (t1_curr - t1_prev <12000)
+                 {
+                  digitalWrite(RISE, HIGH);
+                 }
+                 else
+                 {
+                  digitalWrite(RISE, LOW);
+                  t1_prev=t1_curr;
+                  ui_RunMode=2;
+                 }
+
+            }
+
+        }
+
+
+
+
+
+
+
+
+
 
            if((t1_curr-t1_prev)>=50000)
            {
