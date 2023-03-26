@@ -4,7 +4,7 @@
 // Uncomment keywords to enable debugging output
 #define DEBUG_DRIVE_SPEED 1
 #define DEBUG_ENCODER_COUNT 1
-
+//lolol
 // Port pin constants
 
 #define MODE_BUTTON         0   // GPIO0  pin 27 for Push Button 1
