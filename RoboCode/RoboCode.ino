@@ -7,7 +7,7 @@
 //lolol
 // Port pin constants
 
-#define MODE_BUTTON         0   // GPIO0  pin 27 for Push Button 1
+#define MODE_BUTTON     0   // GPIO0  pin 27 for Push Button 1
 
 #define FORWARD_A       35      //List of probably inaccurate motor names
 #define BACKWARD_A      36
@@ -97,7 +97,7 @@ unsigned int  ui_Mode_Indicator[7] = {                                        //
   SmartLEDs.Color(255,165,0)                                                  //   Orange - empty case
 };
 
-Motion Bot=Motion();                                                          // Instance of motion class
+Motion Bot= Motion();                                                          // Instance of motion class
 void Indicator();                                                             // For mode/heartbeat on Smart LED
 
 void setup() {
