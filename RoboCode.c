@@ -131,7 +131,7 @@ void loop()
 {
     t1_curr = millis();                                                       // Start robot timer
     t2_curr = micros();                                                       // Start sensor timer
-    t3_curr = 20 + millis();                                                  // Start ping timer
+    t3_curr = millis();                                                  // Start ping timer
 
    ul_Current_Micros = micros();                                              // Get current time in microseconds
    if ((ul_Current_Micros - ul_Previous_Micros) >= 1000)                      // Enter when 1 ms has elapsed
@@ -202,15 +202,15 @@ void loop()
              t3_prev = t3_curr;
              t2_prev = t2_curr;
             }
-            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH)){
-             if (t2_curr - t2_prev > 10)
-             {
-                digitalWrite(ci_U_Steer_Ping, LOW);
-                digitalWrite(ci_U_Check_Ping, LOW);
-                ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
-                ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
-                t2_prev = t2_curr;
-             }//Ping Function
+            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH){
+                if (t2_curr - t2_prev > 10)
+                {
+                    digitalWrite(ci_U_Steer_Ping, LOW);
+                    digitalWrite(ci_U_Check_Ping, LOW);
+                    ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                    ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                    t2_prev = t2_curr;
+                }//Ping Function
             }
              //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
 
@@ -244,7 +244,7 @@ void loop()
              t2_prev = t2_curr;
             }
 
-            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH))
+            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH)
             {
              if (t2_curr - t2_prev > 10)
              {
@@ -266,26 +266,44 @@ void loop()
                 if (ul_echo_steer >= (ul_echo_steer_ref+120))
                 {
                     Bot.Forward("D1",150,255);
-                } //if more than 2 cms deviation to the left assuming the wall is to the left
+                } //if more than 2 cm deviation to the right assuming the wall is to the left
                 else if (ul_echo_steer <= (ul_echo_steer_ref-120))
                 {
                     Bot.Forward("D1",255,150);
-                }
+                }//if more than 2 cm deviation to the left assuming the wall is to the left
                 else
                 {
                     Bot.Forward("D1",255,255);
                 }
                 if (ul_echo_check==0)
                 {
+                 Bot.Stop("D1");
                  t1_prev=t1_curr;
                  ui_RunMode=1;
                 }
+                break;
 
             }
             case 1:
             {
-                 Bot.Stop("D1");
-                 if (t1_curr - t1_prev <12000)
+                if (t1_curr - t1_prev < 7000)
+                {
+                   digitalWrite(FRONT_RACK_LARGE_EXTEND, HIGH);
+                   digitalWrite(FRONT_RACK_SMALL_EXTEND, HIGH);
+                }
+                else
+                {
+                   digitalWrite(FRONT_RACK_LARGE_EXTEND, LOW);
+                   digitalWrite(FRONT_RACK_SMALL_EXTEND, LOW);
+                   t1_prev=t1_curr;
+                   ui_RunMode=2;
+                }
+                break;
+            }
+            case 2:
+            {
+                 //Rise for 12 seconds and then stop
+                 if (t1_curr - t1_prev < 12000)
                  {
                   digitalWrite(RISE, HIGH);
                  }
@@ -293,113 +311,123 @@ void loop()
                  {
                   digitalWrite(RISE, LOW);
                   t1_prev=t1_curr;
-                  ui_RunMode=2;
+                  ui_RunMode=3;
                  }
-
+                 break;
             }
 
+            case 3:
+            {
+                if (t1_curr - t1_prev < 7000)
+                {
+                    digitalWrite(FRONT_RACK_SMALL_RETRACT, HIGH);
+                    digitalWrite(REAR_RACK_SMALL_EXTEND, HIGH);
+                }
+                else
+                {
+                    digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW);
+                    digitalWrite(REAR_RACK_SMALL_EXTEND, LOW);
+                    t1_prev=t1_curr;
+                    ui_RunMode=4;
+                }
+                break;
+            }
+            case 4:
+            {
+                if(t1_curr - t1_prev < 7000)
+                {
+                    digitalWrite(FRONT_RACK_LARGE_RETRACT, HIGH);
+                    digitalWrite(REAR_RACK_LARGE_EXTEND, HIGH);
+                }
+                else
+                {
+                    digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW);
+                    digitalWrite(REAR_RACK_LARGE_EXTEND, LOW);
+                    t1_prev=t1_curr;
+                    ui_RunMode=5;
+                }
+                break;
+            }
+            case 5:
+            {
+                if(t1_curr - t1_prev < 7000)
+                {
+                    digitalWrite(REAR_RACK_LARGE_RETRACT, HIGH);
+                    digitalWrite(REAR_RACK_SMALL_RETRACT, HIGH);
+                }
+                else
+                {
+                    digitalWrite(REAR_RACK_LARGE_RETRACT, LOW);
+                    digitalWrite(REAR_RACK_SMALL_RETRACT, LOW);
+                    t1_prev=t1_curr;
+                    ui_RunMode=6;
+                }
+                break;
+            }
+            case 6:
+            {
+                if(t1_curr - t1_prev < 12000)
+                {
+                    digitalWrite(FALL, HIGH);
+                }
+                else
+                {
+                    digitalWrite(FALL, LOW);
+                    t1_prev=t1_curr;
+                    ui_RunMode=7;
+                }
+                break;
+            }
+            case 7:
+            {
+                if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                {
+                    Bot.Forward("D1",150,255);
+                } //if more than 2 cm deviation to the right assuming the wall is to the left
+                else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                {
+                    Bot.Forward("D1",255,150);
+                }//if more than 2 cm deviation to the left assuming the wall is to the left
+                else
+                {
+                    Bot.Forward("D1",255,255);
+                }
+                if (ul_echo_check==0)
+                {
+                 t1_prev=t1_curr;
+                 ui_RunMode=8;
+                }
+                break;
+            }
+            case 8:
+            {
+                if(t1_curr - t1_prev < 6000)
+                {
+                    if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                    {
+                        Bot.Reverse("D1",150,255);
+                    }//if more than 2 cm deviation to the right assuming the wall is to the left
+                    else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                    {
+                        Bot.Reverse("D1",255,150);
+                    }//if more than 2 cm deviation to the left assuming the wall is to the left
+                    else
+                    {
+                        Bot.Reverse("D1",255,255);
+                    }
+                }
+                else
+                {
+                 t1_prev=t1_curr;
+                 ui_RunMode=0;
+                 ui_Robot_Mode_Index=0;
+                }
+                break;
+            }
         }
+    }
+}
 
-
-
-
-
-
-
-
-
-
-           if((t1_curr-t1_prev)>=50000)
-           {
-             t1_prev = t1_curr;
-             ui_Robot_Mode_Index=0;
-           }
-
-           else
-           {
-             if((t1_curr-t1_prev)>=1000 && (t1_curr-t1_prev)<5000)
-             {
-              digitalWrite(FORWARD, HIGH);
-
-             }
-             else if ((t1_curr-t1_prev)>=5000 && (t1_curr-t1_prev)<8000)
-             {
-              digitalWrite(FORWARD, LOW);
-
-              digitalWrite(FRONT_RACK_LARGE_EXTEND, HIGH);
-              digitalWrite(FRONT_RACK_SMALL_EXTEND, HIGH);
-
-
-             }
-             else if((t1_curr-t1_prev)>=8000 && (t1_curr-t1_prev)<15000)
-             {
-              digitalWrite(FRONT_RACK_LARGE_EXTEND, LOW);
-              digitalWrite(FRONT_RACK_SMALL_EXTEND, LOW);
-
-              digitalWrite(RISE, HIGH);
-
-
-             }
-             else if ((t1_curr-t1_prev)>=15000 && (t1_curr-t1_prev)<31000)
-             {
-              digitalWrite(RISE, LOW);
-
-              digitalWrite(FRONT_RACK_LARGE_RETRACT, HIGH);
-              digitalWrite(REAR_RACK_LARGE_EXTEND, HIGH);
-
-
-
-             }
-             else if ((t1_curr-t1_prev)>=31000 && (t1_curr-t1_prev)<41000)
-             {
-              digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW);
-              digitalWrite(REAR_RACK_LARGE_EXTEND, LOW);
-
-              digitalWrite(FRONT_RACK_SMALL_RETRACT, HIGH);
-              digitalWrite(REAR_RACK_SMALL_EXTEND, HIGH);
-
-
-             }
-             else if ((t1_curr-t1_prev)>=41000 && (t1_curr-t1_prev)<46000)
-             {
-              digitalWrite(FRONT_RACK_SMALL_RETRACT, LOW);
-              digitalWrite(REAR_RACK_SMALL_EXTEND, LOW);
-
-              digitalWrite(REAR_RACK_LARGE_RETRACT, HIGH);
-              digitalWrite(REAR_RACK_SMALL_RETRACT, HIGH);
-
-             }
-             else if ((t1_curr-t1_prev)>=46000 && (t1_curr-t1_prev)<46500)
-             {
-              digitalWrite(REAR_RACK_LARGE_RETRACT, LOW);
-              digitalWrite(REAR_RACK_SMALL_RETRACT, LOW);
-
-              digitalWrite(FALL, HIGH);
-
-             }
-             else if ((t1_curr-t1_prev)>=46000 && (t1_curr-t1_prev)<47000)
-             {
-              digitalWrite(FALL, LOW);
-
-              digitalWrite(FORWARD, HIGH);
-
-             }
-             else if ((t1_curr-t1_prev)>=46000 && (t1_curr-t1_prev)<48000)
-             {
-               digitalWrite(FORWARD, LOW);
-               digitalWrite(BACKWARD, HIGH);
-
-             }
-             else
-             {
-               digitalWrite(BACKWARD, LOW);
-             }
-
-           }
-
-           break;
-         }
-      }
 
 
 
