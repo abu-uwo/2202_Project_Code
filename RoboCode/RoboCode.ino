@@ -89,7 +89,7 @@ unsigned char LEDBrightnessLevels[] = {5,15,30,45,60,75,90,105,120,135,150,165,1
 unsigned int  ui_Robot_Mode_Index = 0;                                        // Robot operational state
 unsigned int  ui_Mode_Indicator[7] = {                                        // Colours for different modes
   SmartLEDs.Color(255,0,0),                                                   //   Red - Stop
-  SmartLEDs.Color(0,188,227),                                                 //   Bright Cyan- GO
+  SmartLEDs.Color(45,196,227),                                                //   Bright Cyan- GO
   SmartLEDs.Color(0,0,255),                                                   //   Blue - Test stepper
   SmartLEDs.Color(255,255,0),                                                 //   Yellow - Test claw servo
   SmartLEDs.Color(255,0,255),                                                 //   Magenta - Test shoulder servo
