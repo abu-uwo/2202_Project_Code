@@ -111,6 +111,15 @@ void setup() {
 
    ui_Mode_PB_Debounce = 0;
                                                                               // Reset debounce timer count
+   pinMode(Ultrasonic_steer, OUTPUT);
+   pinMode(Ultrasonic_check, OUTPUT);
+
+   pinMode(ul_U_steer_ping, INPUT);
+   pinMode(ul_U_steer_data, INPUT);
+
+   pinMode(ul_U_check_ping, OUTPUT);
+   pinMode(ul_U_check_data, OUTPUT);
+                                                                              
    pinMode(RISE, OUTPUT);
    pinMode(FALL, OUTPUT);
 
