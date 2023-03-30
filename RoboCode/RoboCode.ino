@@ -20,10 +20,10 @@
 #define Ultrasonic_steer  2    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
 #define Ultrasonic_check  1    // Checks to tell the robot when it arrives to the gap
 
-#define ci_U_Steer_Ping 11
+#define ci_U_Steer_Ping 11 // wall
 #define ci_U_Steer_Data 12
 
-#define ci_U_Check_Ping 13
+#define ci_U_Check_Ping 13 // table
 #define ci_U_Check_Data 14
 
 // github test
@@ -112,16 +112,17 @@ void setup() {
 
    ui_Mode_PB_Debounce = 0;
                                                                               // Reset debounce timer count
-   pinMode(Ultrasonic_steer, OUTPUT);
-   pinMode(Ultrasonic_check, OUTPUT);
+              
+   pinMode(Ultrasonic_steer, OUTPUT); // voltage pin for steering
+   pinMode(Ultrasonic_check, OUTPUT); // voltage pin for table
 
-   pinMode(ul_U_steer_ping, INPUT);
-   pinMode(ul_U_steer_data, INPUT);
+   pinMode(ul_U_steer_ping, OUTPUT); // input signal for steering
+   pinMode(ul_U_steer_data, INPUT); // echo for steering
 
-   pinMode(ul_U_check_ping, OUTPUT);
-   pinMode(ul_U_check_data, OUTPUT);
+   pinMode(ul_U_check_ping, OUTPUT); // input signal for table check
+   pinMode(ul_U_check_data, INPUT); // echo for table check
                                                                               
-   pinMode(RISE, OUTPUT);
+   pinMode(RISE, OUTPUT); //the same pin for both linear actuators 
    pinMode(FALL, OUTPUT);
 
    pinMode(FRONT_RACK_LARGE_EXTEND, OUTPUT);
@@ -141,7 +142,9 @@ void loop()
 {
     t1_curr = millis();                                                       // Start robot timer
     t2_curr = micros();                                                       // Start sensor timer
-    t3_curr = millis();                                                  // Start ping timer
+    t3_curr = millis();                                                       // Start ping timer
+    digitalWrite(Ultrasonic_steer, HIGH);
+    digitalWrite(Ultraonic_check, HIGH);
 
    ul_Current_Micros = micros();                                              // Get current time in microseconds
    if ((ul_Current_Micros - ul_Previous_Micros) >= 1000)                      // Enter when 1 ms has elapsed
@@ -191,6 +194,7 @@ void loop()
                t2_prev=t2_curr;
                ul_3_Second_timer = 0;                                         // Reset 3 second timer count
                bt_3_S_Time_Up = false;                                        // Reset 3 second timer
+               ui_RunMode=0;
             }
          }
       }
@@ -217,8 +221,8 @@ void loop()
                 {
                     digitalWrite(ci_U_Steer_Ping, LOW);
                     digitalWrite(ci_U_Check_Ping, LOW);
-                    ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
-                    ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                    ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 5000);
+                    ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 5000);
                     t2_prev = t2_curr;
                 }//Ping Function
             }
@@ -260,8 +264,8 @@ void loop()
              {
                 digitalWrite(ci_U_Steer_Ping, LOW);
                 digitalWrite(ci_U_Check_Ping, LOW);
-                ul_echo_steer=pulseIn(ci_U_Steer_Data, HIGH, 10000);
-                ul_echo_check=pulseIn(ci_U_Steer_Data, HIGH, 10000);
+                ul_echo_steer=pulseIn(ci_U_Steer_Data, HIGH, 5000);
+                ul_echo_check=pulseIn(ci_U_Steer_Data, HIGH, 5000);
                 t2_prev = t2_curr;
              }//Ping Function
             }
@@ -296,7 +300,7 @@ void loop()
             }
             case 1:
             {
-                if (t1_curr - t1_prev < 7000)
+                if ((t1_curr - t1_prev) < 7000)
                 {
                    digitalWrite(FRONT_RACK_LARGE_EXTEND, HIGH);
                    digitalWrite(FRONT_RACK_SMALL_EXTEND, HIGH);
@@ -335,7 +339,7 @@ void loop()
                 }
                 else
                 {
-                    digitalWrite(FRONT_RACK_LARGE_RETRACT, LOW);
+                    digitalWrite(FRONT_RACK_SMALL_RETRACT, LOW);
                     digitalWrite(REAR_RACK_SMALL_EXTEND, LOW);
                     t1_prev=t1_curr;
                     ui_RunMode=4;
