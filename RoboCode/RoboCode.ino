@@ -4,7 +4,7 @@
 // Uncomment keywords to enable debugging output
 #define DEBUG_DRIVE_SPEED 1
 #define DEBUG_ENCODER_COUNT 1
-//lolol
+
 // Port pin constants
 
 #define MODE_BUTTON     0   // GPIO0  pin 27 for Push Button 1
@@ -14,21 +14,20 @@
 #define FORWARD_B       37
 #define BACKWARD_B      38
 
-#define RISE            45
-#define FALL            35
+#define RISE            2
+#define FALL            1
 
-#define Ultrasonic_steer  2    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
-#define Ultrasonic_check  1    // Checks to tell the robot when it arrives to the gap
+#define Ultrasonic      45    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
 
-#define ci_U_Steer_Ping 11 // wall
-#define ci_U_Steer_Data 12
 
-#define ci_U_Check_Ping 13 // table
-#define ci_U_Check_Data 14
+#define ul_U_steer_ping 11 // wall
+#define ul_U_steer_data 12
+
+#define ul_U_check_ping 13 // table
+#define ul_U_check_data 14
 
 // github test
-//CAN YOU PULL?
-//hello d
+//KIERRA HOLOWACHUK
 
 #define FRONT_RACK_LARGE_EXTEND     4  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
                                 // When DIP Switch S1-1 is off, J15 can be used as analog AD2-4
@@ -113,8 +112,8 @@ void setup() {
    ui_Mode_PB_Debounce = 0;
                                                                               // Reset debounce timer count
               
-   pinMode(Ultrasonic_steer, OUTPUT); // voltage pin for steering
-   pinMode(Ultrasonic_check, OUTPUT); // voltage pin for table
+   pinMode(Ultrasonic, OUTPUT); // voltage pin for table
+   digitalWrite(Ultrasonic, LOW);
 
    pinMode(ul_U_steer_ping, OUTPUT); // input signal for steering
    pinMode(ul_U_steer_data, INPUT); // echo for steering
@@ -143,21 +142,13 @@ void loop()
     t1_curr = millis();                                                       // Start robot timer
     t2_curr = micros();                                                       // Start sensor timer
     t3_curr = millis();                                                       // Start ping timer
-    digitalWrite(Ultrasonic_steer, HIGH);
-    digitalWrite(Ultraonic_check, HIGH);
+    digitalWrite(Ultrasonic, HIGH);
+
 
    ul_Current_Micros = micros();                                              // Get current time in microseconds
    if ((ul_Current_Micros - ul_Previous_Micros) >= 1000)                      // Enter when 1 ms has elapsed
    {
       ul_Previous_Micros = ul_Current_Micros;                                 // Record current time in microseconds
-
-      // 3 second timer, counts 3000 milliseconds
-      ul_3_Second_timer = ul_3_Second_timer + 1;                              // Increment 3 second timer count
-      if(ul_3_Second_timer > 3000)                                            // If 3 seconds have elapsed
-      {
-         ul_3_Second_timer = 0;                                               // Reset 3 second timer count
-         bt_3_S_Time_Up = true;                                               // Indicate that 3 seconds have elapsed
-      }
 
       // Mode pushbutton debounce and toggle
       if(!digitalRead(MODE_BUTTON))                                           // If pushbutton GPIO goes LOW (nominal push)
@@ -192,43 +183,20 @@ void loop()
                ui_Robot_Mode_Index = ui_Robot_Mode_Index % 2;                 // Keep mode index between 0 and 1
                t1_prev=t1_curr;
                t2_prev=t2_curr;
-               ul_3_Second_timer = 0;                                         // Reset 3 second timer count
-               bt_3_S_Time_Up = false;                                        // Reset 3 second timer
                ui_RunMode=0;
             }
          }
       }
-
+   }
 
 
       // modes
       // 0 = Default after power up/reset. Robot is stopped.
       // 1 = Press mode button once to enter. Run robot.
-      switch(ui_Robot_Mode_Index)
-      {
-         case 0: // Robot stopped
-         {
-
-            Bot.Stop("D1");
-            if (t3_curr - t3_prev >= 20){
-             digitalWrite(ci_U_Steer_Ping, HIGH);
-             digitalWrite(ci_U_Check_Ping, HIGH);
-             t3_prev = t3_curr;
-             t2_prev = t2_curr;
-            }
-            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH){
-                if (t2_curr - t2_prev > 10)
-                {
-                    digitalWrite(ci_U_Steer_Ping, LOW);
-                    digitalWrite(ci_U_Check_Ping, LOW);
-                    ul_echo_steer_ref=pulseIn(ci_U_Steer_Data, HIGH, 5000);
-                    ul_echo_check_ref=pulseIn(ci_U_Steer_Data, HIGH, 5000);
-                    t2_prev = t2_curr;
-                }//Ping Function
-            }
-             //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
-
-
+   switch(ui_Robot_Mode_Index)
+    {
+        case 0: // Robot stopped
+        {
             digitalWrite(RISE, LOW); //HIGH POWER 5V
             digitalWrite(FALL, LOW); //HIGH POWER 5V
 
@@ -242,46 +210,65 @@ void loop()
             digitalWrite(REAR_RACK_SMALL_EXTEND, LOW);
             digitalWrite(REAR_RACK_SMALL_RETRACT, LOW);
 
-            break;
 
-
-         }
-
-         case 1: // Run robot
-         {
-
-           if (t3_curr - t3_prev >= 20)
+            Bot.Stop("D1");
+            if (t3_curr - t3_prev >= 20)
             {
-             digitalWrite(ci_U_Steer_Ping, HIGH);
-             digitalWrite(ci_U_Check_Ping, HIGH);
+             digitalWrite(ul_U_steer_ping, HIGH);
+             digitalWrite(ul_U_check_ping, HIGH);
              t3_prev = t3_curr;
              t2_prev = t2_curr;
             }
 
-            if(digitalRead(ci_U_Steer_Ping)==HIGH && digitalRead(ci_U_Check_Ping)==HIGH)
+            if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
             {
-             if (t2_curr - t2_prev > 10)
-             {
-                digitalWrite(ci_U_Steer_Ping, LOW);
-                digitalWrite(ci_U_Check_Ping, LOW);
-                ul_echo_steer=pulseIn(ci_U_Steer_Data, HIGH, 5000);
-                ul_echo_check=pulseIn(ci_U_Steer_Data, HIGH, 5000);
-                t2_prev = t2_curr;
-             }//Ping Function
-            }
+                if (t2_curr - t2_prev > 10)
+                {
+                    digitalWrite(ul_U_steer_ping, LOW);
+                    digitalWrite(ul_U_check_ping, LOW);
+                    ul_echo_steer_ref=pulseIn(ul_U_check_data, HIGH, 5000);
+                    ul_echo_check_ref=pulseIn(ul_U_steer_data, HIGH, 5000);
+                    t2_prev = t2_curr;
+                }//Ping Function
+            } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
+           
+            break;
+         }
 
-        // ---------------------------------------------------------------------------------------------
-        //Action section
-
-        switch(ui_RunMode)
+        case 1: // Run robot
         {
+         switch(ui_RunMode)
+          {
             case 0:
             {
-                if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                
+             if (t3_curr - t3_prev >= 20)
+              {
+              digitalWrite(ul_U_steer_ping, HIGH);
+              digitalWrite(ul_U_check_ping, HIGH);
+              t3_prev = t3_curr;
+              t2_prev = t2_curr;
+              }
+
+             if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
+             {
+              if (t2_curr - t2_prev > 10)
+              {
+                digitalWrite(ul_U_steer_ping, LOW);
+                digitalWrite(ul_U_check_ping, LOW);
+                ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 5000);
+                ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 5000);
+                t2_prev = t2_curr;
+              }//Ping Function
+             }
+
+
+              
+                if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
                     Bot.Forward("D1",150,255);
                 } //if more than 2 cm deviation to the right assuming the wall is to the left
-                else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                 {
                     Bot.Forward("D1",255,150);
                 }//if more than 2 cm deviation to the left assuming the wall is to the left
@@ -394,11 +381,32 @@ void loop()
             }
             case 7:
             {
-                if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                    
+              if (t3_curr - t3_prev >= 20)
+              {
+                digitalWrite(ul_U_steer_ping, HIGH);
+                digitalWrite(ul_U_check_ping, HIGH);
+                t3_prev = t3_curr;
+                t2_prev = t2_curr;
+              }
+
+              if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
+              {
+                if (t2_curr - t2_prev > 10)
+                {
+                  digitalWrite(ul_U_steer_ping, LOW);
+                  digitalWrite(ul_U_check_ping, LOW);
+                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 5000);
+                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 5000);
+                  t2_prev = t2_curr;
+                }//Ping Function
+               }
+
+                if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
                     Bot.Forward("D1",150,255);
                 } //if more than 2 cm deviation to the right assuming the wall is to the left
-                else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                 {
                     Bot.Forward("D1",255,150);
                 }//if more than 2 cm deviation to the left assuming the wall is to the left
@@ -415,13 +423,33 @@ void loop()
             }
             case 8:
             {
+              if (t3_curr - t3_prev >= 20)
+              {
+                digitalWrite(ul_U_steer_ping, HIGH);
+                digitalWrite(ul_U_check_ping, HIGH);
+                t3_prev = t3_curr;
+                t2_prev = t2_curr;
+              }
+
+              if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
+              {
+                if (t2_curr - t2_prev > 10)
+                {
+                  digitalWrite(ul_U_steer_ping, LOW);
+                  digitalWrite(ul_U_check_ping, LOW);
+                  ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 5000);
+                  ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 5000);
+                  t2_prev = t2_curr;
+                }//Ping Function
+              }
+
                 if(t1_curr - t1_prev < 6000)
                 {
-                    if (ul_echo_steer >= (ul_echo_steer_ref+120))
+                    if (ul_echo_steer >= (ul_echo_steer_ref+70))
                     {
                         Bot.Reverse("D1",150,255);
                     }//if more than 2 cm deviation to the right assuming the wall is to the left
-                    else if (ul_echo_steer <= (ul_echo_steer_ref-120))
+                    else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                     {
                         Bot.Reverse("D1",255,150);
                     }//if more than 2 cm deviation to the left assuming the wall is to the left
@@ -438,12 +466,9 @@ void loop()
                 }
                 break;
             }
-        }
-    }
-}
-
-
-
+         }
+      }
+  }
 
       // Update brightness of heartbeat display on SmartLED
       ul_Display_Time++;                                                      // Count milliseconds
@@ -458,7 +483,7 @@ void loop()
          SmartLEDs.setBrightness(LEDBrightnessLevels[LEDBrightnessIndex]);    // Set brightness of heartbeat LED
          Indicator();                                                         // Update LED
       }
-   }
+   
 }
 
 // Set colour of Smart LED depending on robot mode (and update brightness)
