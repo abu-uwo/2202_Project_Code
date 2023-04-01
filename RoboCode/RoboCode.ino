@@ -1,4 +1,4 @@
-#include <Adafruit_NeoPixel.h>
+ #include <Adafruit_NeoPixel.h>
 #include <MSE2202_Lib.h>
 
 // Uncomment keywords to enable debugging output
@@ -53,6 +53,8 @@
 
 
 const int ci_Display_Update = 100;                                            // Update interval for Smart LED in milliseconds
+
+int numOfPings=0;
 
 boolean bt_3_S_Time_Up = false;                                               // 3 second timer elapsed flag
 unsigned int ui_Mode_PB_Debounce;                                             // Pushbutton debounce timer count
@@ -230,7 +232,7 @@ void loop()
                     t2_prev = t2_curr;
                 }//Ping Function
             } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
-           
+           numOfPings=0;
             break;
          }
 
@@ -255,14 +257,16 @@ void loop()
               {
                 digitalWrite(ul_U_steer_ping, LOW);
                 digitalWrite(ul_U_check_ping, LOW);
-                ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 5000);
-                ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 5000);
+                ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
+                ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
                 t2_prev = t2_curr;
+                numOfPings++;
               }//Ping Function
              }
 
 
-              
+              if(numOfPings!=0)
+              {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
                     Bot.Forward("D1",150,255);
@@ -275,18 +279,20 @@ void loop()
                 {
                     Bot.Forward("D1",255,255);
                 }
+
                 if (ul_echo_check==0)
                 {
                  Bot.Stop("D1");
                  t1_prev=t1_curr;
                  ui_RunMode=1;
+                 numOfPings=0;
                 }
+              }
                 break;
-
             }
             case 1:
             {
-                if ((t1_curr - t1_prev) < 7000)
+                if ((t1_curr - t1_prev) < 2150)
                 {
                    digitalWrite(FRONT_RACK_LARGE_EXTEND, HIGH);
                    digitalWrite(FRONT_RACK_SMALL_EXTEND, HIGH);
@@ -303,7 +309,7 @@ void loop()
             case 2:
             {
                  //Rise for 12 seconds and then stop
-                 if (t1_curr - t1_prev < 12000)
+                 if ((t1_curr - t1_prev) < 22000)
                  {
                   digitalWrite(RISE, HIGH);
                  }
@@ -318,7 +324,7 @@ void loop()
 
             case 3:
             {
-                if (t1_curr - t1_prev < 7000)
+                if ((t1_curr - t1_prev) < 2150)
                 {
                     digitalWrite(FRONT_RACK_SMALL_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_SMALL_EXTEND, HIGH);
@@ -334,7 +340,7 @@ void loop()
             }
             case 4:
             {
-                if(t1_curr - t1_prev < 7000)
+                if((t1_curr - t1_prev) < 2150)
                 {
                     digitalWrite(FRONT_RACK_LARGE_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_LARGE_EXTEND, HIGH);
@@ -350,7 +356,7 @@ void loop()
             }
             case 5:
             {
-                if(t1_curr - t1_prev < 7000)
+                if((t1_curr - t1_prev) < 2150)
                 {
                     digitalWrite(REAR_RACK_LARGE_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_SMALL_RETRACT, HIGH);
@@ -366,7 +372,7 @@ void loop()
             }
             case 6:
             {
-                if(t1_curr - t1_prev < 12000)
+                if((t1_curr - t1_prev) < 12000)
                 {
                     digitalWrite(FALL, HIGH);
                 }
@@ -395,12 +401,14 @@ void loop()
                 {
                   digitalWrite(ul_U_steer_ping, LOW);
                   digitalWrite(ul_U_check_ping, LOW);
-                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 5000);
-                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 5000);
+                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
+                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
                   t2_prev = t2_curr;
+                  numOfPings++;
                 }//Ping Function
                }
-
+              if(numOfPings != 0)
+              {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
                     Bot.Forward("D1",150,255);
@@ -417,7 +425,9 @@ void loop()
                 {
                  t1_prev=t1_curr;
                  ui_RunMode=8;
+                 numOfPings=0;
                 }
+              }
                 break;
             }
             case 8:
@@ -436,13 +446,14 @@ void loop()
                 {
                   digitalWrite(ul_U_steer_ping, LOW);
                   digitalWrite(ul_U_check_ping, LOW);
-                  ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 5000);
-                  ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 5000);
+                  ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
+                  ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
                   t2_prev = t2_curr;
                 }//Ping Function
               }
-
-                if(t1_curr - t1_prev < 6000)
+              if(numOfPings != 0)
+              {
+                if(t1_curr - t1_prev < 6000) // replace with a mapping function
                 {
                     if (ul_echo_steer >= (ul_echo_steer_ref+70))
                     {
@@ -462,7 +473,9 @@ void loop()
                  t1_prev=t1_curr;
                  ui_RunMode=0;
                  ui_Robot_Mode_Index=0;
+                 numOfPings=0;
                 }
+              }
                 break;
             }
          }
