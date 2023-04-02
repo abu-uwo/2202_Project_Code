@@ -185,6 +185,7 @@ void loop()
                t1_prev=t1_curr;
                t2_prev=t2_curr;
                ui_RunMode=0;
+               numOfPings=0;
             }
          }
       }
@@ -232,7 +233,7 @@ void loop()
                     t2_prev = t2_curr;
                 }//Ping Function
             } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
-           numOfPings=0;
+           
             break;
          }
 
