@@ -1,4 +1,4 @@
- #include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h>
 #include <MSE2202_Lib.h>
 
 // Uncomment keywords to enable debugging output
@@ -292,10 +292,14 @@ void loop()
             }
             case 1:
             {
-                if ((t1_curr - t1_prev) < 2150)
+                if ((t1_curr - t1_prev) < 2450)
                 {
                    digitalWrite(FRONT_RACK_LARGE_EXTEND, HIGH);
                    digitalWrite(FRONT_RACK_SMALL_EXTEND, HIGH);
+                }
+                else if ((t1_curr - t1_prev) >= 2450 && (t1_curr - t1_prev) < 4450)
+                {
+                  digitalWrite(FRONT_RACK_LARGE_EXTEND, LOW);
                 }
                 else
                 {
@@ -372,7 +376,7 @@ void loop()
             }
             case 6:
             {
-                if((t1_curr - t1_prev) < 12000)
+                if((t1_curr - t1_prev) < 22000)
                 {
                     digitalWrite(FALL, HIGH);
                 }
