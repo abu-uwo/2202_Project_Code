@@ -330,7 +330,7 @@ void loop()
 
             case 3:
             {
-                if ((t1_curr - t1_prev) < 2150)
+                if ((t1_curr - t1_prev) < 4150)
                 {
                     digitalWrite(FRONT_RACK_SMALL_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_SMALL_EXTEND, HIGH);
@@ -346,10 +346,14 @@ void loop()
             }
             case 4:
             {
-                if((t1_curr - t1_prev) < 4500)
+                if((t1_curr - t1_prev) < 2100)
                 {
                     digitalWrite(FRONT_RACK_LARGE_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_LARGE_EXTEND, HIGH);
+                }
+                else if((t1_curr - t1_prev) <= 4150)
+                {
+                  digitalWrite(REAR_RACK_LARGE_EXTEND, LOW);
                 }
                 else
                 {
