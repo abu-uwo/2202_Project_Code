@@ -1,4 +1,4 @@
-#include <Adafruit_NeoPixel.h>
+ #include <Adafruit_NeoPixel.h>
 #include <MSE2202_Lib.h>
 
 // Uncomment keywords to enable debugging output
@@ -102,7 +102,6 @@ Motion Bot= Motion();                                                          /
 void Indicator();                                                             // For mode/heartbeat on Smart LED
 
 void setup() {
-  ui_Robot_Mode_Index=0;
   // put your setup code here, to run once:
    Bot.driveBegin("D1", FORWARD_A, BACKWARD_A, FORWARD_B, BACKWARD_B);        // Set up motors as Drive 1
 
@@ -215,24 +214,27 @@ void loop()
 
 
             Bot.Stop("D1");
-            
-            /* digitalWrite(ul_U_steer_ping, HIGH);
+            if (t3_curr - t3_prev >= 20)
+            {
+             digitalWrite(ul_U_steer_ping, HIGH);
              digitalWrite(ul_U_check_ping, HIGH);
              t3_prev = t3_curr;
              t2_prev = t2_curr;
              delayMicroseconds(10);
-          
+            }
+
             if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
             {
-               
+                
                     digitalWrite(ul_U_steer_ping, LOW);
                     digitalWrite(ul_U_check_ping, LOW);
                     ul_echo_steer_ref=pulseIn(ul_U_check_data, HIGH, 5000);
                     ul_echo_check_ref=pulseIn(ul_U_steer_data, HIGH, 5000);
                     t2_prev = t2_curr;
-
+                
             } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
-           */
+           numOfPings=0;
+           
             break;
          }
 
@@ -243,7 +245,7 @@ void loop()
             case 0:
             {
                 
-             /*if (t3_curr - t3_prev >= 20)
+             if ((t3_curr - t3_prev) >= 20)
               {
               digitalWrite(ul_U_steer_ping, HIGH);
               digitalWrite(ul_U_check_ping, HIGH);
@@ -254,44 +256,43 @@ void loop()
 
              if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
              {
+              
                 digitalWrite(ul_U_steer_ping, LOW);
                 digitalWrite(ul_U_check_ping, LOW);
                 ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
                 ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
                 t2_prev = t2_curr;
                 numOfPings++;
-           
-             }*/
+              
+             }
 
 
-              //if(numOfPings>0)
-            //  {
-              digitalWrite(BACKWARD_A, HIGH);
-              digitalWrite(BACKWARD_B, HIGH);
-               /* if (ul_echo_steer >= (ul_echo_steer_ref+70))
+              if(numOfPings!=0)
+              {
+                if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
-                    Bot.Forward("D1",150,255);
+                    Bot.Forward("D1",170,255);
                 } //if more than 2 cm deviation to the right assuming the wall is to the left
                 else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                 {
-                    Bot.Forward("D1",255,150);
+                    Bot.Forward("D1",255,170);
                 }//if more than 2 cm deviation to the left assuming the wall is to the left
                 else
                 {
                     Bot.Forward("D1",255,255);
-                }*/
+                }
 
-               /* if (ul_echo_check==0)
+                if (ul_echo_check==0)
                 {
                  Bot.Stop("D1");
                  t1_prev=t1_curr;
                  ui_RunMode=1;
                  numOfPings=0;
-                }*/
-            //  }
+                }
+              }
                 break;
             }
-            /*case 1:
+            case 1:
             {
                 if ((t1_curr - t1_prev) < 2450)
                 {
@@ -314,7 +315,7 @@ void loop()
             case 2:
             {
                  //Rise for 12 seconds and then stop
-                 if ((t1_curr - t1_prev) < 22000)
+                 if ((t1_curr - t1_prev) < 19000)
                  {
                   digitalWrite(RISE, HIGH);
                  }
@@ -345,7 +346,7 @@ void loop()
             }
             case 4:
             {
-                if((t1_curr - t1_prev) < 2150)
+                if((t1_curr - t1_prev) < 4500)
                 {
                     digitalWrite(FRONT_RACK_LARGE_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_LARGE_EXTEND, HIGH);
@@ -361,7 +362,7 @@ void loop()
             }
             case 5:
             {
-                if((t1_curr - t1_prev) < 2150)
+                if((t1_curr - t1_prev) < 4550)
                 {
                     digitalWrite(REAR_RACK_LARGE_RETRACT, HIGH);
                     digitalWrite(REAR_RACK_SMALL_RETRACT, HIGH);
@@ -377,7 +378,7 @@ void loop()
             }
             case 6:
             {
-                if((t1_curr - t1_prev) < 22000)
+                if((t1_curr - t1_prev) < 19000)
                 {
                     digitalWrite(FALL, HIGH);
                 }
@@ -398,29 +399,29 @@ void loop()
                 digitalWrite(ul_U_check_ping, HIGH);
                 t3_prev = t3_curr;
                 t2_prev = t2_curr;
+                delayMicroseconds(10);
               }
 
               if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
               {
-                if (t2_curr - t2_prev > 10)
-                {
+               
                   digitalWrite(ul_U_steer_ping, LOW);
                   digitalWrite(ul_U_check_ping, LOW);
                   ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
                   ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
                   t2_prev = t2_curr;
                   numOfPings++;
-                }//Ping Function
+                
                }
               if(numOfPings != 0)
               {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
-                    Bot.Forward("D1",150,255);
+                    Bot.Forward("D1",170,255);
                 } //if more than 2 cm deviation to the right assuming the wall is to the left
                 else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                 {
-                    Bot.Forward("D1",255,150);
+                    Bot.Forward("D1",255,170);
                 }//if more than 2 cm deviation to the left assuming the wall is to the left
                 else
                 {
@@ -443,30 +444,30 @@ void loop()
                 digitalWrite(ul_U_check_ping, HIGH);
                 t3_prev = t3_curr;
                 t2_prev = t2_curr;
+                delayMicroseconds(10);
               }
 
               if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
               {
-                if (t2_curr - t2_prev > 10)
-                {
+               
                   digitalWrite(ul_U_steer_ping, LOW);
                   digitalWrite(ul_U_check_ping, LOW);
                   ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
                   ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
                   t2_prev = t2_curr;
-                }//Ping Function
+               
               }
               if(numOfPings != 0)
               {
-                if(t1_curr - t1_prev < 6000) // replace with a mapping function
+                if(t1_curr - t1_prev < 12000) // replace with a mapping function
                 {
                     if (ul_echo_steer >= (ul_echo_steer_ref+70))
                     {
-                        Bot.Reverse("D1",150,255);
+                        Bot.Reverse("D1",170,255);
                     }//if more than 2 cm deviation to the right assuming the wall is to the left
                     else if (ul_echo_steer <= (ul_echo_steer_ref-70))
                     {
-                        Bot.Reverse("D1",255,150);
+                        Bot.Reverse("D1",255,170);
                     }//if more than 2 cm deviation to the left assuming the wall is to the left
                     else
                     {
@@ -482,7 +483,7 @@ void loop()
                 }
               }
                 break;
-            }*/
+            }
          }
       }
   }
