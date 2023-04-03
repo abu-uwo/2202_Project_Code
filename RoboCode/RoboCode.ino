@@ -102,6 +102,7 @@ Motion Bot= Motion();                                                          /
 void Indicator();                                                             // For mode/heartbeat on Smart LED
 
 void setup() {
+  ui_Robot_Mode_Index=0;
   // put your setup code here, to run once:
    Bot.driveBegin("D1", FORWARD_A, BACKWARD_A, FORWARD_B, BACKWARD_B);        // Set up motors as Drive 1
 
@@ -265,7 +266,9 @@ void loop()
 
               //if(numOfPings>0)
             //  {
-                if (ul_echo_steer >= (ul_echo_steer_ref+70))
+              digitalWrite(BACKWARD_A, HIGH);
+              digitalWrite(BACKWARD_B, HIGH);
+               /* if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
                     Bot.Forward("D1",150,255);
                 } //if more than 2 cm deviation to the right assuming the wall is to the left
@@ -276,7 +279,7 @@ void loop()
                 else
                 {
                     Bot.Forward("D1",255,255);
-                }
+                }*/
 
                /* if (ul_echo_check==0)
                 {
