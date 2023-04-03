@@ -266,7 +266,7 @@ void loop()
              }
 
 
-              if(numOfPings!=0)
+              if(numOfPings>0)
               {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
                 {
@@ -281,17 +281,17 @@ void loop()
                     Bot.Forward("D1",255,255);
                 }
 
-                if (ul_echo_check==0)
+               /* if (ul_echo_check==0)
                 {
                  Bot.Stop("D1");
                  t1_prev=t1_curr;
                  ui_RunMode=1;
                  numOfPings=0;
-                }
+                }*/
               }
                 break;
             }
-            case 1:
+            /*case 1:
             {
                 if ((t1_curr - t1_prev) < 2450)
                 {
@@ -482,7 +482,7 @@ void loop()
                 }
               }
                 break;
-            }
+            }*/
          }
       }
   }
