@@ -20,21 +20,21 @@
 #define Ultrasonic      45    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
 
 
-#define ul_U_steer_ping 11 // wall
-#define ul_U_steer_data 12
+#define ul_U_steer_ping 4 // wall
+#define ul_U_steer_data 5
 
-#define ul_U_check_ping 13 // table
-#define ul_U_check_data 14
+#define ul_U_check_ping 6 // table
+#define ul_U_check_data 7
 
 // github test
 
-#define FRONT_RACK_LARGE_EXTEND     4  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
+#define FRONT_RACK_LARGE_EXTEND     11  // When DIP Switch S1-1 is on, Left encoder A signal is connected to pin 8 GPIO15 (J15)
                                 // When DIP Switch S1-1 is off, J15 can be used as analog AD2-4
-#define FRONT_RACK_LARGE_RETRACT    5 // When DIP Switch S1-2 is on, Left encoder B signal is connected to pin 9 GPIO16 (J16)
+#define FRONT_RACK_LARGE_RETRACT    12 // When DIP Switch S1-2 is on, Left encoder B signal is connected to pin 9 GPIO16 (J16)
                                 // When DIP Switch S1-2 is off, J16 can be used as analog AD2-5
-#define FRONT_RACK_SMALL_EXTEND     6  // When DIP Switch S1-3 is on, Left encoder Direction signal is connected to pin 10 GPIO17 (J17)
+#define FRONT_RACK_SMALL_EXTEND     13  // When DIP Switch S1-3 is on, Left encoder Direction signal is connected to pin 10 GPIO17 (J17)
                                 // When DIP Switch S1-3 is off, J17 can be used as analog AD2-6
-#define FRONT_RACK_SMALL_RETRACT    7  // When DIP Switch S1-4 is on, Left encoder Speed signal is connected to pin 11 GPIO18 (J18)
+#define FRONT_RACK_SMALL_RETRACT    14  // When DIP Switch S1-4 is on, Left encoder Speed signal is connected to pin 11 GPIO18 (J18)
                                 // When DIP Switch S1-4 is off, J18 can be used as analog AD2-7
 
 
@@ -228,8 +228,8 @@ void loop()
                 
                     digitalWrite(ul_U_steer_ping, LOW);
                     digitalWrite(ul_U_check_ping, LOW);
-                    ul_echo_steer_ref=pulseIn(ul_U_check_data, HIGH, 5000);
-                    ul_echo_check_ref=pulseIn(ul_U_steer_data, HIGH, 5000);
+                    ul_echo_check_ref=pulseIn(ul_U_check_data, HIGH, 5000);
+                    ul_echo_steer_ref=pulseIn(ul_U_steer_data, HIGH, 5000);
                     t2_prev = t2_curr;
                 
             } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
@@ -259,8 +259,8 @@ void loop()
               
                 digitalWrite(ul_U_steer_ping, LOW);
                 digitalWrite(ul_U_check_ping, LOW);
-                ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
-                ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
+                ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
+                ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
                 t2_prev = t2_curr;
                 numOfPings++;
               
@@ -456,8 +456,8 @@ void loop()
                
                   digitalWrite(ul_U_steer_ping, LOW);
                   digitalWrite(ul_U_check_ping, LOW);
-                  ul_echo_steer=pulseIn(ul_U_check_data, HIGH, 4000);
-                  ul_echo_check=pulseIn(ul_U_steer_data, HIGH, 7000);
+                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
+                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
                   t2_prev = t2_curr;
                
               }
