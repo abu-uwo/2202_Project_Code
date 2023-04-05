@@ -215,24 +215,19 @@ void loop()
 
             Bot.Stop("D1");
             if (t3_curr - t3_prev >= 20)
-            {
-             digitalWrite(ul_U_steer_ping, HIGH);
-             digitalWrite(ul_U_check_ping, HIGH);
-             t3_prev = t3_curr;
-             t2_prev = t2_curr;
-             delayMicroseconds(10);
-            }
+              {
+                digitalWrite(ul_U_check_ping, HIGH);
+                delayMicroseconds(10);
+                digitalWrite(ul_U_check_ping, LOW);
+                ul_echo_check_ref=pulseIn(ul_U_check_data, HIGH, 4000);
 
-            if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
-            {
-                
-                    digitalWrite(ul_U_steer_ping, LOW);
-                    digitalWrite(ul_U_check_ping, LOW);
-                    ul_echo_check_ref=pulseIn(ul_U_check_data, HIGH, 5000);
-                    ul_echo_steer_ref=pulseIn(ul_U_steer_data, HIGH, 5000);
-                    t2_prev = t2_curr;
-                
-            } //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
+                digitalWrite(ul_U_steer_ping, HIGH);
+                delayMicroseconds(10);
+                digitalWrite(ul_U_steer_ping, LOW);
+                ul_echo_steer_ref=pulseIn(ul_U_steer_data, HIGH, 7000);
+                t3_prev = t3_curr;
+              }
+   //determine the "distance" (not exactly distance because ul_echo of time) from wall before the robot starts moving
            numOfPings=0;
            
             break;
@@ -245,28 +240,20 @@ void loop()
             case 0:
             {
                 
-             if ((t3_curr - t3_prev) >= 20)
+             if (t3_curr - t3_prev >= 20)
               {
-              digitalWrite(ul_U_steer_ping, HIGH);
-              digitalWrite(ul_U_check_ping, HIGH);
-              t3_prev = t3_curr;
-              t2_prev = t2_curr;
-              delayMicroseconds(10);
-              }
-
-             if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
-             {
-              
-                digitalWrite(ul_U_steer_ping, LOW);
+                digitalWrite(ul_U_check_ping, HIGH);
+                delayMicroseconds(10);
                 digitalWrite(ul_U_check_ping, LOW);
                 ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
+
+                digitalWrite(ul_U_steer_ping, HIGH);
+                delayMicroseconds(10);
+                digitalWrite(ul_U_steer_ping, LOW);
                 ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
-                t2_prev = t2_curr;
+                t3_prev = t3_curr;
                 numOfPings++;
-              
-             }
-
-
+              }
               if(numOfPings!=0)
               {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
@@ -399,24 +386,19 @@ void loop()
                     
               if (t3_curr - t3_prev >= 20)
               {
-                digitalWrite(ul_U_steer_ping, HIGH);
                 digitalWrite(ul_U_check_ping, HIGH);
-                t3_prev = t3_curr;
-                t2_prev = t2_curr;
                 delayMicroseconds(10);
-              }
+                digitalWrite(ul_U_check_ping, LOW);
+                ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
 
-              if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
-              {
-               
-                  digitalWrite(ul_U_steer_ping, LOW);
-                  digitalWrite(ul_U_check_ping, LOW);
-                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
-                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
-                  t2_prev = t2_curr;
-                  numOfPings++;
-                
-               }
+                digitalWrite(ul_U_steer_ping, HIGH);
+                delayMicroseconds(10);
+                digitalWrite(ul_U_steer_ping, LOW);
+                ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
+                t3_prev = t3_curr;
+                numOfPings++;
+              }
+  
               if(numOfPings != 0)
               {
                 if (ul_echo_steer >= (ul_echo_steer_ref+70))
@@ -444,23 +426,19 @@ void loop()
             {
               if (t3_curr - t3_prev >= 20)
               {
-                digitalWrite(ul_U_steer_ping, HIGH);
                 digitalWrite(ul_U_check_ping, HIGH);
-                t3_prev = t3_curr;
-                t2_prev = t2_curr;
                 delayMicroseconds(10);
-              }
+                digitalWrite(ul_U_check_ping, LOW);
+                ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
 
-              if(digitalRead(ul_U_steer_ping)==HIGH && digitalRead(ul_U_check_ping)==HIGH)
-              {
-               
-                  digitalWrite(ul_U_steer_ping, LOW);
-                  digitalWrite(ul_U_check_ping, LOW);
-                  ul_echo_check=pulseIn(ul_U_check_data, HIGH, 4000);
-                  ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
-                  t2_prev = t2_curr;
-               
+                digitalWrite(ul_U_steer_ping, HIGH);
+                delayMicroseconds(10);
+                digitalWrite(ul_U_steer_ping, LOW);
+                ul_echo_steer=pulseIn(ul_U_steer_data, HIGH, 7000);
+                t3_prev = t3_curr;
+                numOfPings++;
               }
+  
               if(numOfPings != 0)
               {
                 if(t1_curr - t1_prev < 12000) // replace with a mapping function
