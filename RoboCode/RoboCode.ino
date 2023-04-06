@@ -1,4 +1,4 @@
- #include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h>
 #include <MSE2202_Lib.h>
 
 // Uncomment keywords to enable debugging output
@@ -15,7 +15,9 @@
 #define BACKWARD_B      38
 
 #define RISE            2
-#define FALL            1
+#define FALL            45
+
+#define POT             1
 
 #define Ultrasonic      45    // This sensor determines if the ultrasonic sensor should steer left or right if it strays
 
@@ -441,7 +443,7 @@ void loop()
   
               if(numOfPings != 0)
               {
-                if(t1_curr - t1_prev < 12000) // replace with a mapping function
+                if(t1_curr - t1_prev < map(analogRead(POT),0,4096,15000,25000)) // replace with a mapping function
                 {
                     if (ul_echo_steer >= (ul_echo_steer_ref+70))
                     {
